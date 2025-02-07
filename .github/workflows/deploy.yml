@@ -1,31 +1,28 @@
-name: Deploy to EC2 (Amazon Linux 2023)
+name: Deploy to EC2
 
 on:
   push:
     branches:
-      - main  # Change if using a different branch
+      - main  # Set to the branch you want to deploy from (e.g., 'main' or 'master')
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
-    - name: Deploy to EC2
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-        EC2_HOST: "98.83.139.195"  # Replace with your actual EC2 IP
-        EC2_USER: "ec2-user"
-        PROJECT_DIR: "/home/ec2-user/meteorological-station"
+    - name: Set up SSH for EC2
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    - name: Deploy to EC2 instance
       run: |
-        echo "$SSH_PRIVATE_KEY" > weather-api.pem
-        chmod 600 weather-api.pem
-        ssh -o StrictHostKeyChecking=no -i weather-api.pem $EC2_USER@$EC2_HOST << 'EOF'
-          cd $PROJECT_DIR
-          git pull origin main
-          npm install
-          pm2 restart my-weather-api
+        ssh -o StrictHostKeyChecking=no ec2-user@98.83.139.195 << 'EOF'
+          cd meteorological-station || exit
+          git pull origin main || exit  # Pull the latest code from Git
+          npm install --production || exit  # Install dependencies
+          pm2 restart my-weather-api || exit  # Restart your app using PM2
         EOF
-        rm -f weather-api.pem
