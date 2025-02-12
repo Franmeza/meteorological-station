@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+const { Sequelize } = require("sequelize");
 import { SensorData } from "../models/SensorsData";
 
 /**
@@ -34,7 +35,7 @@ export const createSensorData = async (req: Request, res: Response) => {
 export const getAllSensorData = async (req: Request, res: Response) => {
   try {
     const data = await SensorData.findAll();
-    if (data.length === 0) {
+    if (!data.length) {
       res.status(404).json({ error: "No data" });
       return;
     }

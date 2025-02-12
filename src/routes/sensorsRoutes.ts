@@ -8,10 +8,14 @@ import { validateApiKey } from "../middleware/authMiddleware";
 
 const sensorsRoutes = Router();
 
-sensorsRoutes.get("/data", getAllSensorData);
+sensorsRoutes.get("/weather", getAllSensorData);
 
-sensorsRoutes.get("/weather", getUpdatedSensorData);
+sensorsRoutes.get("/weather/latest", getUpdatedSensorData);
 
 sensorsRoutes.post("/update", validateApiKey, createSensorData);
+
+sensorsRoutes.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
 export default sensorsRoutes;
