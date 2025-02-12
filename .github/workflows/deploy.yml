@@ -24,5 +24,6 @@ jobs:
           cd meteorological-station || exit
           git pull origin main || exit  # Pull the latest code from Git
           npm install --production || exit  # Install dependencies
+          npm run build || exit  # Compile TypeScript to JavaScript
           pm2 restart my-weather-api || exit  # Restart your app using PM2
         EOF
